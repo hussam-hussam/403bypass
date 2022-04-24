@@ -14,7 +14,7 @@ from javax.swing import SwingUtilities;
 from javax.swing.table import AbstractTableModel;
 from threading import Lock
 
-class BurpExtender(IBurpExtender, ITab, IHttpListener, IMessageEditorController, AbstractTableModel):
+class BurpExtender(IBurpExtender, IContextMenuFactory, ITab, IHttpListener, IMessageEditorController, AbstractTableModel):
     
     #
     # implement IBurpExtender
@@ -30,6 +30,7 @@ class BurpExtender(IBurpExtender, ITab, IHttpListener, IMessageEditorController,
         
         # set our extension name
         callbacks.setExtensionName("Custom logger")
+        self.callbacks.registerContextMenuFactory(self)
         
         # create the log and a lock on which to synchronize when adding log entries
         self._log = ArrayList()
@@ -64,7 +65,20 @@ class BurpExtender(IBurpExtender, ITab, IHttpListener, IMessageEditorController,
         callbacks.registerHttpListener(self)
         
         return
-        
+	def createMenuItems(self, invocation):
+		self.context = invocation
+		self.menuList = []
+		self.menuItem = JMenuItem("Test for 403 Bypassing", actionPerformed=self.testrequest)
+		self.menuList.append(self.menuItem)
+		return self.menuList
+
+	def testrequest(self, event):
+		selectedMessages = self.context.getSelectedMessages()
+		for message in selectedMessages:
+			#thread.start_new_thread(self.doActiveScan, (message, "" , True, ))
+            #here goes the scanning
+
+		return None
     #
     # implement ITab
     #
